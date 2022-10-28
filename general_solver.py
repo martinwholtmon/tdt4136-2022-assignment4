@@ -1,4 +1,4 @@
-from Assignment import create_map_coloring_csp, create_sudoku_csp, print_sudoku_solution
+from Assignment import create_sudoku_csp, print_sudoku_solution
 
 BOARDS = {
     "easy": "easy.txt",
