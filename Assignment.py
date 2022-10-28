@@ -170,29 +170,29 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
-        # All values (= list[list]) in dict have a lenght of 1
+        # all values (= list[list]) in dict have a lenght of 1
         # Return solution
         if all(len(a_list) == 1 for a_list in list(assignment.values())):
             return assignment, n_backtrack, n_false
 
-        # Select unassigned variable
+        # select unassigned variable
         var = self.select_unassigned_variable(assignment)
 
         for value in self.order_domain_values(var, assignment):
-            # Deep copy because of recursion
+            # deep copy because of recursion
             new_assignment = copy.deepcopy(assignment)
 
             # set value for var
             new_assignment.update({var: [value]})
 
-            # Execute inference on the new assignment
+            # execute inference on the new assignment
             inference = self.inference(new_assignment, self.get_all_arcs())
             if inference:
                 result, n_backtrack, n_false = self.backtrack(
                     new_assignment, n_backtrack + 1, n_false
                 )
 
-                # Result is an assignment, return
+                # if result is an assignment, return
                 if result:
                     return result, n_backtrack, n_false
         return False, n_backtrack, n_false + 1
@@ -219,7 +219,6 @@ class CSP:
             list[list]: list of domain values
         """
         return assignment.get(var)
-        return True
 
     def inference(self, assignment, queue: list[tuple]):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -230,15 +229,15 @@ class CSP:
         while queue:  # continue until empty
             xi, xj = queue.pop()
             if self.revise(assignment, xi, xj):
-                # Empty list?
+                # check the size of the domain for xi, empty?
                 if not assignment.get(xi):
                     return False
 
-                # Get all of xi neighbors
+                # get all of xi neighbors, but not xj
                 neighbors = list(self.constraints.get(xi).keys())
                 neighbors.remove(xj)
 
-                # Add to queue
+                # add neighbors to queue
                 for xk in neighbors:
                     queue.append((xk, xi))
         return True
@@ -256,11 +255,11 @@ class CSP:
         for x in assignment.get(xi):
             satisfy = False
             for y in assignment.get(xj):
-                # Any y allows (x,y) to satisfy the constraint
+                # any y allows (x,y) to satisfy the constraint
                 if (x, y) in self.constraints[xi][xj]:
                     satisfy = True
 
-            # No value y satisfy the constraint
+            # no value y satisfy the constraint
             if not satisfy:
                 assignment.get(xi).remove(x)
                 revised = True
