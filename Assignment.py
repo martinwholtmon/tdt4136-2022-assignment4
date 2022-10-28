@@ -146,7 +146,7 @@ class CSP:
         # Call backtrack with the partial assignment 'assignment'
         return self.backtrack(assignment)
 
-    def backtrack(self, assignment):
+    def backtrack(self, assignment: dict):
         """The function 'Backtrack' from the pseudocode in the
         textbook.
 
@@ -170,28 +170,67 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        # All values (= list[list]) in dict have a lenght of 1
+        if all(len(a_list) == 1 for a_list in list(assignment.values())):
+            return assignment
 
-    def select_unassigned_variable(self, assignment):
+        # Select unassigned variable
+        var = self.select_unassigned_variable(assignment)
+
+        for value in self.order_domain_values(var, assignment):
+            # Deep copy because of recursion
+            assignment = copy.deepcopy(assignment)
+            print(assignment)
+
+            # value consistent with assignment
+            print(var, value)
+
+    def select_unassigned_variable(self, assignment: dict):
         """The function 'Select-Unassigned-Variable' from the pseudocode
         in the textbook. Should return the name of one of the variables
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        # Return first key/variable that has more than one value.
+        for key, value in assignment.items():
+            if len(value) > 1:
+                return key
 
-    def inference(self, assignment, queue):
+    def order_domain_values(self, var, assignment: dict):
+        """Order the domain values
+
+        Args:
+            var (str): variable to order
+            assignment (dict): domain values
+
+        Returns:
+            list[list]: list of domain values
+        """
+        return assignment.get(var)
+
+    def inference(self, assignment, queue: list[tuple]):
         """The function 'AC-3' from the pseudocode in the textbook.
         'assignment' is the current partial assignment, that contains
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        while queue:
+            xi, xj = queue.pop()
+            if self.revise(assignment, xi, xj):
+                # Empty list?
+                if not self.assignment.get(xi):
+                    return False
 
-    def revise(self, assignment, i, j):
+                # Get all of xi neighbors
+                neighbors = list(self.constraints.get(xi).keys())
+                neighbors.remove(xj)
+
+                # Add to queue
+                for xk in neighbors:
+                    queue.append((xk, xi))
+        return True
+
+    def revise(self, assignment, xi, xj):
         """The function 'Revise' from the pseudocode in the textbook.
         'assignment' is the current partial assignment, that contains
         the lists of legal values for each undecided variable. 'i' and
@@ -200,8 +239,19 @@ class CSP:
         between i and j, the value should be deleted from i's list of
         legal values in 'assignment'.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        revised = False
+        for x in assignment.get(xi):
+            satisfy = False
+            for y in assignment.get(xj):
+                # Any y allows (x,y) to satisfy the constraint
+                if (x, y) in self.constraints[xi][xj]:
+                    satisfy = True
+
+            # No value y satisfy the constraint
+            if not satisfy:
+                assignment.get(xi).remove(x)
+                revised = True
+        return revised
 
 
 def create_map_coloring_csp():
