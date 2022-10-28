@@ -144,9 +144,9 @@ class CSP:
         self.inference(assignment, self.get_all_arcs())
 
         # Call backtrack with the partial assignment 'assignment'
-        return self.backtrack(assignment)
+        return self.backtrack(assignment, 0, 0)
 
-    def backtrack(self, assignment: dict):
+    def backtrack(self, assignment: dict, n_backtrack: int, n_false: int):
         """The function 'Backtrack' from the pseudocode in the
         textbook.
 
@@ -173,7 +173,7 @@ class CSP:
         # All values (= list[list]) in dict have a lenght of 1
         # Return solution
         if all(len(a_list) == 1 for a_list in list(assignment.values())):
-            return assignment
+            return assignment, n_backtrack, n_false
 
         # Select unassigned variable
         var = self.select_unassigned_variable(assignment)
@@ -188,12 +188,14 @@ class CSP:
             # Execute inference on the new assignment
             inference = self.inference(new_assignment, self.get_all_arcs())
             if inference:
-                result = self.backtrack(new_assignment)
+                result, n_backtrack, n_false = self.backtrack(
+                    new_assignment, n_backtrack + 1, n_false
+                )
 
                 # Result is an assignment, return
                 if result:
-                    return result
-        return False
+                    return result, n_backtrack, n_false
+        return False, n_backtrack, n_false + 1
 
     def select_unassigned_variable(self, assignment: dict):
         """The function 'Select-Unassigned-Variable' from the pseudocode
