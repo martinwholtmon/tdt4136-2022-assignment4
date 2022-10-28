@@ -171,6 +171,7 @@ class CSP:
         iterations of the loop.
         """
         # All values (= list[list]) in dict have a lenght of 1
+        # Return solution
         if all(len(a_list) == 1 for a_list in list(assignment.values())):
             return assignment
 
@@ -179,11 +180,20 @@ class CSP:
 
         for value in self.order_domain_values(var, assignment):
             # Deep copy because of recursion
-            assignment = copy.deepcopy(assignment)
-            print(assignment)
+            new_assignment = copy.deepcopy(assignment)
 
-            # value consistent with assignment
-            print(var, value)
+            # set value for var
+            new_assignment.update({var: [value]})
+
+            # Execute inference on the new assignment
+            inference = self.inference(new_assignment, self.get_all_arcs())
+            if inference:
+                result = self.backtrack(new_assignment)
+
+                # Result is an assignment, return
+                if result:
+                    return result
+        return False
 
     def select_unassigned_variable(self, assignment: dict):
         """The function 'Select-Unassigned-Variable' from the pseudocode
@@ -207,6 +217,7 @@ class CSP:
             list[list]: list of domain values
         """
         return assignment.get(var)
+        return True
 
     def inference(self, assignment, queue: list[tuple]):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -214,7 +225,7 @@ class CSP:
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        while queue:
+        while queue:  # continue until empty
             xi, xj = queue.pop()
             if self.revise(assignment, xi, xj):
                 # Empty list?
