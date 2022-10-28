@@ -218,7 +218,7 @@ class CSP:
             xi, xj = queue.pop()
             if self.revise(assignment, xi, xj):
                 # Empty list?
-                if not self.assignment.get(xi):
+                if not assignment.get(xi):
                     return False
 
                 # Get all of xi neighbors
